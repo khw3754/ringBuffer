@@ -28,25 +28,29 @@ public class Main {
             numberOfEntries = 0;    // 저장된 데이터 개수
         }
 
-        public synchronized void put(T element) {
+        public synchronized void put(T element) throws InterruptedException {
             if (isFull()) {
-                throw new IllegalStateException("Buffer is full");
+                System.out.println("Buffer is full");
+                wait();
             }
 
             buffer[back] = element;
             back = (back + 1) % bufsize;
             numberOfEntries++;
+            notify();
         }
 
-        public synchronized T get() {
+        public synchronized T get() throws InterruptedException {
             if (isEmpty()) {
-                throw new IllegalStateException("Buffer is empty");
+                System.out.println("Buffer is empty");
+                wait();
             }
 
             T element = buffer[front];
             buffer[front] = null;
             front = (front + 1) % bufsize;
             numberOfEntries--;
+            notify();
             return element;
         }
 
@@ -64,18 +68,35 @@ public class Main {
     {
         CircularBuffer circularBuffer = new CircularBuffer<Integer>(10);
 
-        for (int i = 0; i < 5; i++){
-            circularBuffer.put(i);
-        }
-        System.out.println(circularBuffer);
+        final int[] data = {0};   // 발생 데이터
+        Thread producerThread = new Thread(() -> {
+            while(true) {
+                try {
+                    circularBuffer.put(data[0]);
+                    System.out.println("put: " + data[0]);
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                data[0]++;
+            }
+        });
 
-        for (int i = 5; i < 20; i++){
-            circularBuffer.put(i);
-            System.out.println(circularBuffer);
-            int get = (int) circularBuffer.get();
-            System.out.println("get = " + get + '\n');
-        }
+        Thread consumerThread = new Thread(() -> {
+            while(true) {
+                try {
+                    int get = (int) circularBuffer.get();
+                    System.out.println("get: " + get);
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
 
-        return;
+        producerThread.start();
+        consumerThread.start();
+
+//      return;
     }
 }
