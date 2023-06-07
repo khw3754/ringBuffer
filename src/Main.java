@@ -1,4 +1,5 @@
 import java.util.Arrays;
+import java.util.Random;
 
 public class Main {
 
@@ -67,6 +68,7 @@ public class Main {
     public static void main(String[] args)
     {
         CircularBuffer circularBuffer = new CircularBuffer<Integer>(10);
+        Random rand = new Random();
 
         final int[] data = {0};   // 발생 데이터
         Thread producerThread = new Thread(() -> {
@@ -74,7 +76,9 @@ public class Main {
                 try {
                     circularBuffer.put(data[0]);
                     System.out.println("put: " + data[0]);
-                    Thread.sleep(100);
+
+                    int t = 100 + (int)(10 * rand.nextGaussian());
+                    Thread.sleep(t);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
@@ -87,7 +91,9 @@ public class Main {
                 try {
                     int get = (int) circularBuffer.get();
                     System.out.println("get: " + get);
-                    Thread.sleep(100);
+
+                    int t = 110 + (int)(10 * rand.nextGaussian());
+                    Thread.sleep(t);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
@@ -97,6 +103,6 @@ public class Main {
         producerThread.start();
         consumerThread.start();
 
-//      return;
+      return;
     }
 }
