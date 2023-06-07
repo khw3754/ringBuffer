@@ -7,25 +7,25 @@ public class Main {
         public String toString() {
             return "CircularBuffer{" +
                     "buffer=" + Arrays.toString(buffer) +
-                    ", capacity=" + capacity +
+                    ", bufsize=" + bufsize +
                     ", front=" + front +
                     ", back=" + back +
-                    ", size=" + bufsize +
+                    ", numberOfEntries=" + numberOfEntries +
                     '}';
         }
 
         private T[] buffer;
-        private int capacity;
+        private int bufsize;
         private int front;
         private int back;
-        private int bufsize;
+        private int numberOfEntries;
 
         public CircularBuffer(int capacity) {
-            this.capacity = capacity;
+            this.bufsize = capacity;
             buffer = (T[]) new Object[capacity];
             front = 0;
             back = 0;
-            bufsize = 0;    // 저장된 데이터 개수
+            numberOfEntries = 0;    // 저장된 데이터 개수
         }
 
         public synchronized void put(T element) {
@@ -34,8 +34,8 @@ public class Main {
             }
 
             buffer[back] = element;
-            back = (back + 1) % capacity;
-            bufsize++;
+            back = (back + 1) % bufsize;
+            numberOfEntries++;
         }
 
         public synchronized T get() {
@@ -45,17 +45,17 @@ public class Main {
 
             T element = buffer[front];
             buffer[front] = null;
-            front = (front + 1) % capacity;
-            bufsize--;
+            front = (front + 1) % bufsize;
+            numberOfEntries--;
             return element;
         }
 
         public boolean isFull() {
-            return bufsize == capacity;
+            return numberOfEntries == bufsize;
         }
 
         public boolean isEmpty() {
-            return bufsize == 0;
+            return numberOfEntries == 0;
         }
     }
 
