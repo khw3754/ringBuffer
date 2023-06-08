@@ -70,14 +70,14 @@ public class Main {
     }
 
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) throws InterruptedException {
         CircularBuffer circularBuffer = new CircularBuffer<Integer>(10);
         Random rand = new Random();
 
-        int producerAvg = 100;
-        int consumerAvg = 100;
-        int dispersion = 10;
+        int producerAvg = 100;      // 생산자 평균 속도
+        int consumerAvg = 100;      // 소비자 평균 속도
+        int dispersion = 10;        // 분산
+
 
         // 데이터를 생성하여 버퍼에 넣는 스레드
         final int[] data = {0};   // 발생 데이터
