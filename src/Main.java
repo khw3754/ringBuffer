@@ -3,6 +3,9 @@ import java.util.Random;
 
 public class Main {
 
+    /**
+     * 링버퍼 구현 클래스
+     */
     public static class CircularBuffer<T> {
         @Override
         public String toString() {
@@ -29,9 +32,10 @@ public class Main {
             numberOfEntries = 0;    // 저장된 데이터 개수
         }
 
+        // 버퍼에 data를 넣음
         public synchronized void put(T element) throws InterruptedException {
             if (isFull()) {
-                System.out.println("Buffer is full");
+                System.out.println("##### Buffer is full #####");
                 wait();
             }
 
@@ -41,9 +45,10 @@ public class Main {
             notify();
         }
 
+        // 버퍼에서 data를 가져옴
         public synchronized T get() throws InterruptedException {
             if (isEmpty()) {
-                System.out.println("Buffer is empty");
+                System.out.println("##### Buffer is empty #####");
                 wait();
             }
 
@@ -70,14 +75,21 @@ public class Main {
         CircularBuffer circularBuffer = new CircularBuffer<Integer>(10);
         Random rand = new Random();
 
+        int producerAvg = 100;
+        int consumerAvg = 100;
+        int dispersion = 10;
+
+        // 데이터를 생성하여 버퍼에 넣는 스레드
         final int[] data = {0};   // 발생 데이터
         Thread producerThread = new Thread(() -> {
             while(true) {
                 try {
+                    // data를 넣음
                     circularBuffer.put(data[0]);
-                    System.out.println("put: " + data[0]);
+//                    System.out.println("put: " + data[0]);
 
-                    int t = 100 + (int)(10 * rand.nextGaussian());
+                    // 평균 100ms + 분산10 * 가우시안분포  시간만큼 sleep
+                    int t = producerAvg + (int)(dispersion * rand.nextGaussian());
                     Thread.sleep(t);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
@@ -86,13 +98,23 @@ public class Main {
             }
         });
 
+        // 데이터를 소비하는 스레드
         Thread consumerThread = new Thread(() -> {
+            int count = 0;
             while(true) {
                 try {
+                    // data를 가져옴
                     int get = (int) circularBuffer.get();
-                    System.out.println("get: " + get);
+                    // 처리, 누락 출력
+                    if (get == count) {
+                        System.out.println("data " + get + " 처리 완료");
+                    }else{
+                        System.out.println("data " + count + " 누락 발생");
+                    }
+                    count++;
 
-                    int t = 110 + (int)(10 * rand.nextGaussian());
+                    // 평균 100ms + 분산10 * 가우시안분포  시간만큼 sleep
+                    int t = consumerAvg + (int)(dispersion * rand.nextGaussian());
                     Thread.sleep(t);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
